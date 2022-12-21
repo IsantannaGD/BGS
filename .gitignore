@@ -58,3 +58,7 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+BGS/Library
+BGS/Logs
+BGS/Temp
+BGS/Packages
