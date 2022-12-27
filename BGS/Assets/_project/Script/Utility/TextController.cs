@@ -13,7 +13,7 @@ public class TextController : MonoBehaviour
 {
     public Action OnChoiceSelected;
     public Action OnBeginChoice;
-    public Action<bool> OnBoxControl;
+    public Action<bool, float> OnBoxControl;
 
     [SerializeField] private CanvasGroup _canvasGroup;
     [SerializeField] private TextMeshProUGUI _context;
@@ -21,14 +21,13 @@ public class TextController : MonoBehaviour
 
     [SerializeField] private float _fadeTime = 0.5f;
     [SerializeField] private float _scaleTime = 0.5f;
-    [SerializeField] private bool _initialized = false;
     
-    public void SetContextText(string text, bool isUpdating = false)
+    public void SetContextText(string text, bool fadeIn = true)
     {
         _context.text = text;
-        _canvasGroup.alpha = 0f;
+        Fade(false);
 
-        if (isUpdating)
+        if (fadeIn)
         {
             Fade(true);
         }
@@ -51,6 +50,7 @@ public class TextController : MonoBehaviour
     {
         foreach (ChoiceContainer choice in _choices)
         {
+            choice.OnChoiceSelect += OnChoiceSelectedHandler;
             OnChoiceSelected += choice.FadeOut;
             OnBeginChoice += choice.Initialize;
         }
@@ -62,15 +62,18 @@ public class TextController : MonoBehaviour
         OnChoiceSelected?.Invoke();
     }
 
-    private void BoxAnimControl(bool status)
+    private void BoxAnimControl(bool status, float delay)
     {
         if (status)
         {
-            gameObject.transform.DOScale(1f, _scaleTime).OnComplete(() => Fade(true));
+            gameObject.transform.DOScale(1f, _scaleTime).SetDelay(delay).OnComplete(() =>
+            {
+                Fade(true);
+            });
             return;
         }
 
-        gameObject.transform.DOScale(0f, _scaleTime);
+        gameObject.transform.DOScale(0f, _scaleTime).SetDelay(delay);
     }
 
     private void Fade(bool status)

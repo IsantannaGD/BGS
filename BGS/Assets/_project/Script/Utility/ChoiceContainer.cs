@@ -21,7 +21,7 @@ public struct ChoiceForm
 
 public class ChoiceContainer : MonoBehaviour
 {
-    public event Action OnChoiceSelect;
+    public Action OnChoiceSelect;
 
     [SerializeField] private Button _button;
     [SerializeField] private TextMeshProUGUI _display;
@@ -35,8 +35,10 @@ public class ChoiceContainer : MonoBehaviour
     {
         _display.text = message;
         _button.onClick.AddListener(e);
+        _button.onClick.AddListener(OnSelectHandler);
 
         _canvasGroup.alpha = 0f;
+        _canvasGroup.interactable = false;
         _active = true;
     }
 
@@ -54,7 +56,8 @@ public class ChoiceContainer : MonoBehaviour
         {
             _canvasGroup.DOFade(0f, _fadeTime).OnComplete(() =>
             {
-                gameObject.SetActive(false);
+                _canvasGroup.interactable = false;
+                _canvasGroup.blocksRaycasts = false;
             });
         }
     }
@@ -62,7 +65,16 @@ public class ChoiceContainer : MonoBehaviour
     private void FadeIn()
     {
         gameObject.SetActive(true);
-        _canvasGroup.DOFade(1f, _fadeTime);
+        _canvasGroup.DOFade(1f, _fadeTime).OnComplete(() =>
+        {
+            _canvasGroup.interactable = true;
+            _canvasGroup.blocksRaycasts = true;
+        });
+    }
+
+    private void OnSelectHandler()
+    {
+        OnChoiceSelect?.Invoke();
     }
 
     private void OnDisable()

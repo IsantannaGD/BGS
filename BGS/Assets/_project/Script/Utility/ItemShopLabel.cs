@@ -10,6 +10,8 @@ public class ItemShopLabel : MonoBehaviour, IPointerDownHandler
 {
     public Action<Item> OnSelectItem;
 
+    public Item Item => _currentItem;
+
     [SerializeField] private Image _bg;
     [SerializeField] private Image _iconImage;
     [SerializeField] private TextMeshProUGUI _itemName;
