@@ -68,6 +68,8 @@ public class Shop : MonoBehaviour
         _currentCustomer = c;
         _operationType = o;
 
+        ClearList();
+
         switch (_operationType)
         {
             case OperationType.Buy:
@@ -176,31 +178,6 @@ public class Shop : MonoBehaviour
         OnReturn?.Invoke();
     }
 
-    private void ShowSelectedItemHandler()
-    {
-        _selectedItemName.text = _currentItem.Name;
-        _selectedItemDescription.text = _currentItem.Description;
-        _selectedItemImage.gameObject.SetActive(true);
-        _selectedItemImage.sprite = _currentItem.ItemSprite;
-        _selectedItemImage.DOFade(1f, 05f);
-        _selectedItemType.text = _currentItem.ItemType.ToString();
-        _selectedItemValue.text = $"{_currentValue}";
-        _interactionButton.interactable = true;
-    }
-
-    private void ClearSelection()
-    {
-        _selectedItemName.text = " ";
-        _selectedItemDescription.text = " ";
-        _selectedItemImage.DOFade(0f, 0.5f).OnComplete(() => {_selectedItemImage.gameObject.SetActive(false);});
-        _selectedItemType.text = " ";
-        _selectedItemValue.text = " ";
-        _currentValue = 0f;
-        _currentItem = null;
-        _interactionButton.interactable = false;
-
-    }
-
     private void RemoveItemFromList(Item i)
     {
         foreach (ItemShopLabel label in _createdItems)
@@ -220,6 +197,43 @@ public class Shop : MonoBehaviour
         }
     }
 
+    private void ShowSelectedItemHandler()
+    {
+        _selectedItemName.text = _currentItem.Name;
+        _selectedItemDescription.text = _currentItem.Description;
+        _selectedItemImage.gameObject.SetActive(true);
+        _selectedItemImage.sprite = _currentItem.ItemSprite;
+        _selectedItemImage.DOFade(1f, 0.5f);
+        _selectedItemType.text = _currentItem.ItemType.ToString();
+        _selectedItemValue.text = $"{_currentValue}";
+        _interactionButton.interactable = true;
+    }
+
+    private void ClearSelection()
+    {
+        _selectedItemName.text = " ";
+        _selectedItemDescription.text = " ";
+        _selectedItemImage.DOFade(0f, 0.5f).OnComplete(() => {_selectedItemImage.gameObject.SetActive(false);});
+        _selectedItemType.text = " ";
+        _selectedItemValue.text = " ";
+        _currentValue = 0f;
+        _currentItem = null;
+        _interactionButton.interactable = false;
+
+    }
+
+    private void ClearList()
+    {
+        foreach (ItemShopLabel label in _createdItems)
+        {
+            OnSelectItemInList -= label.SelectItemInListCallback;
+            label.OnSelectItem -= SelectItemHandler;
+            Destroy(label.gameObject);
+        }
+
+        _createdItems.Clear();
+        ClearSelection();
+    }
     private void PanelAnim(bool status)
     {
         if (status)
