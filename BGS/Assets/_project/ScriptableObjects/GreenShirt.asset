@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 927ca4e2fa859ae4dbcc18b487722f61, type: 3}
-  m_Name: PurpleShirt
+  m_Name: GreenShirt
   m_EditorClassIdentifier: 
   _isEquipped: 0
-  _id: 5
-  _name: Purple Shirt
-  _description: Basic purple shirt.
+  _id: 6
+  _name: Green Shirt
+  _description: Basic green shirt.
   _defaultValue: 70
   _itemType: 2
-  _sprite: {fileID: 21300000, guid: fff248787aa9dc44d819b77a6686c0af, type: 3}
-  _icon: {fileID: 21300000, guid: fff248787aa9dc44d819b77a6686c0af, type: 3}
+  _sprite: {fileID: 21300000, guid: 90458a12b047bb84ba77cb7ea81ba457, type: 3}
+  _icon: {fileID: 21300000, guid: 90458a12b047bb84ba77cb7ea81ba457, type: 3}

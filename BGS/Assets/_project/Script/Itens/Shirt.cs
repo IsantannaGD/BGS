@@ -7,6 +7,11 @@ public class Shirt : Item, ISalable, IPurchasable, IWearable
 {
     public readonly ClothType ClothType = ClothType.Shirt;
 
+    private void OnDisable()
+    {
+        _isEquipped = false;
+    }
+
     public void EquipItemHandler(bool isEquipped)
     {
         _isEquipped = isEquipped;

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9970e827a1223284a86ee16486128ec3, type: 3}
   m_Name: BrownHat
   m_EditorClassIdentifier: 
+  _isEquipped: 0
   _id: 3
   _name: Brown Hat
   _description: Simple hat with red color.

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,11 @@ using UnityEngine;
 public class Hat : Item, ISalable, IPurchasable, IWearable
 {
     public readonly ClothType ClothType = ClothType.Hat;
+
+    private void OnDisable()
+    {
+        _isEquipped = false;
+    }
 
     public void EquipItemHandler(bool isEquipped)
     {

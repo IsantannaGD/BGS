@@ -21,6 +21,7 @@ public class Shop : ItemListBuilder
 
     private const string MoneyLessShop = "The ShopKeeper don't have money to buy your item...";
     private const string CantSellThis = "It's not a salable Item!";
+    private const string CantSellEquippedItem = "You can't sell equipped items!, unequip him to sell.";
     private const string SuccessSell = "Wonderful, bring other items in future!";
 
     public float ShopKeeperWallet => shopKeeperWallet;
@@ -115,6 +116,12 @@ public class Shop : ItemListBuilder
 
     private void BuyCustomerItemCallback()
     {
+        if (currentItem.EquippedChecker())
+        {
+          textController.SetContextText(CantSellEquippedItem);
+          return;
+        }
+
         ISalable itemToSell = currentItem as ISalable;
 
         if (itemToSell == null)
