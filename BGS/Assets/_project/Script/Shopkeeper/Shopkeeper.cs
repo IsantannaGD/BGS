@@ -20,8 +20,6 @@ public class Shopkeeper : MonoBehaviour
     [SerializeField][CanBeNull] private Player _currentCustomer;
     [SerializeField] private Shop _shop;
 
-    private int intTest = 0;
-
     public void InitialDialogueCallback()
     {
         StartCoroutine(EnterToTheShop());
@@ -83,12 +81,12 @@ public class Shopkeeper : MonoBehaviour
 
     private void SellOption()
     {
-        _shop.Setup(OperationType.Sell, _currentCustomer);
+        _shop.Setup(OperationType.Sell, _currentCustomer, _textController);
     }
 
     private void BuyOption()
     {
-        _shop.Setup(OperationType.Buy, _currentCustomer);
+        _shop.Setup(OperationType.Buy, _currentCustomer, _textController);
     }
 
     private void LeaveOption()  

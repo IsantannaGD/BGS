@@ -11,8 +11,7 @@ public interface ISalable
             return false;
         }
 
-
+        p.Inventory.PlayerSellItemHandler(this, value);
         return true;
     }
-
 }

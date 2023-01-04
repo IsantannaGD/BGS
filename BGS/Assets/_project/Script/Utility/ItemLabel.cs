@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ItemShopLabel : MonoBehaviour, IPointerDownHandler
+public class ItemLabel : MonoBehaviour, IPointerDownHandler
 {
     public Action<Item> OnSelectItem;
 

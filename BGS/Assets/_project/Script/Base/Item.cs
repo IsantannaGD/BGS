@@ -18,6 +18,8 @@ public abstract class Item : ScriptableObject, IComparable, IEquatable<Item>
     public Sprite ItemSprite => _sprite;
     public Sprite ItemIcon => _icon;
     
+    [SerializeField] protected bool _isEquipped;
+
     [SerializeField] private int _id;
     [SerializeField] private string _name;
     [SerializeField] private string _description;
@@ -56,6 +58,22 @@ public abstract class Item : ScriptableObject, IComparable, IEquatable<Item>
         }
 
         return -1;
+    }
+
+    public bool EquippedChecker()
+    {
+        switch (_itemType)
+        {
+            case ItemType.Consumable:
+                return false;
+                break;
+            case ItemType.Weapon:
+            case ItemType.Clothe:
+                return _isEquipped;
+                break;
+        }
+
+        return false;
     }
 
     public bool Equals(Item other)

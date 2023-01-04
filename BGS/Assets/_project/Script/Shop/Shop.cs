@@ -11,7 +11,7 @@ public enum OperationType
     Buy = 0,
     Sell = 1
 }
-public class Shop : MonoBehaviour
+public class Shop : ItemListBuilder
 {
     private const string BuyMessage = "What do you want purchase, today?";
     private const string SellMessage = "Well, show me what do you have...";
@@ -23,50 +23,21 @@ public class Shop : MonoBehaviour
     private const string CantSellThis = "It's not a salable Item!";
     private const string SuccessSell = "Wonderful, bring other items in future!";
 
-    public Action<Item> OnSelectItemInList;
-    public Action OnReturn;
-
-    public float ShopKeeperWallet => _shopKeeperWallet;
+    public float ShopKeeperWallet => shopKeeperWallet;
 
     [SerializeField] private OperationType _operationType;
     [SerializeField] private List<Item> _shopItens;
-    [SerializeField] private GameObject _spawnPoint;
-    [SerializeField] private ItemShopLabel _labelPrefab;
-
-    [SerializeField] private TextController _textController;
-    [SerializeField] private TextMeshProUGUI _selectedItemName;
-    [SerializeField] private TextMeshProUGUI _selectedItemDescription;
-    [SerializeField] private TextMeshProUGUI _selectedItemType;
-    [SerializeField] private TextMeshProUGUI _selectedItemValue;
-    [SerializeField] private Image _selectedItemImage;
-    [SerializeField] private Button _interactionButton;
-    [SerializeField] private Button _cancelInteractionButton;
-
-    [SerializeField] private Item _currentItem;
-    [SerializeField] private float _currentValue;
-    [SerializeField] private float _animTime = 0.5f;
-    [SerializeField] private float _shopKeeperWallet = 850f;
-    [SerializeField] private List<ItemShopLabel> _createdItems;
 
     [SerializeField] private Player _currentCustomer;
+    [SerializeField] private TextMeshProUGUI _customerWallet;
 
-    private void Start()
-    {
-        Initializations();
-    }
-
-    private void Initializations()
-    {
-        _interactionButton.onClick.AddListener(InteractiveButtonHandler);
-        _cancelInteractionButton.onClick.AddListener(CancelPurchaseItemHandler);
-
-        gameObject.SetActive(false);
-    }
-
-    public void Setup(OperationType o, Player c)
+    [SerializeField] private float shopKeeperWallet = 850f;
+    
+    public void Setup(OperationType o, Player c, TextController t)
     {
         _currentCustomer = c;
         _operationType = o;
+        textController = t;
 
         ClearList();
 
@@ -74,47 +45,37 @@ public class Shop : MonoBehaviour
         {
             case OperationType.Buy:
                 CreateList(_shopItens);
-                _textController.SetContextText(BuyMessage);
-                _interactionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Purchase";
+                textController.SetContextText(BuyMessage);
+                interactionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Purchase";
                 break;
             case OperationType.Sell:
-                CreateList(_currentCustomer.Inventory);
-                _textController.SetContextText(SellMessage);
-                _interactionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Sell";
+                CreateList(_currentCustomer.Inventory.InventoryList);
+                textController.SetContextText(SellMessage);
+                interactionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Sell";
                 break;
         }
 
+        UpdateWalletDisplay(shopKeeperWallet);
+        UpdateCustomerWalletDisplay(_currentCustomer.Inventory.Wallet);
         PanelAnim(true);
     }
 
     public void UpdateWalletHandler(float value)
     {
-        _shopKeeperWallet += value;
+        shopKeeperWallet += value;
+        UpdateWalletDisplay(shopKeeperWallet);
+        UpdateCustomerWalletDisplay(_currentCustomer.Inventory.Wallet);
     }
 
-    private void CreateList(List<Item> items)
-    {
-        foreach (Item item in items)
-        {
-            ItemShopLabel n = Instantiate(_labelPrefab, _spawnPoint.transform);
-            n.Setup(item);
-
-            OnSelectItemInList += n.SelectItemInListCallback;
-            n.OnSelectItem += SelectItemHandler;
-
-            _createdItems.Add(n);
-        }
-    }
-
-    private void SelectItemHandler(Item i)
+    protected override void SelectItemHandler(Item i)
     {
         OnSelectItemInList?.Invoke(i);
-        _currentItem = i;
-        _currentValue = _currentItem.GetShopValue(_operationType);
+        currentItem = i;
+        currentValue = currentItem.GetShopValue(_operationType);
         ShowSelectedItemHandler();
     }
 
-    private void InteractiveButtonHandler()
+    protected override void InteractiveButtonHandler()
     {
         switch (_operationType)
         {
@@ -127,125 +88,72 @@ public class Shop : MonoBehaviour
         }
     }
 
+    private void UpdateCustomerWalletDisplay(float value)
+    {
+        _customerWallet.text = value.ToString("000");
+    }
+
     private void SellShopItemCallback()
     {
-        IPurchasable itemToPurchase = _currentItem as IPurchasable;
+        IPurchasable itemToPurchase = currentItem as IPurchasable;
 
         if (itemToPurchase == null)
         {return; }
 
-        if (!itemToPurchase.BuyItem(_currentCustomer, _currentValue))
+        if (!itemToPurchase.BuyItem(_currentCustomer, currentValue))
         {
-            _textController.SetContextText(MoneylessCustomer);
+            textController.SetContextText(MoneylessCustomer);
             return;
         }
         
-        UpdateWalletHandler(_currentValue);
-        _textController.SetContextText(SuccessPurchase);
+        UpdateWalletHandler(currentValue);
+        textController.SetContextText(SuccessPurchase);
 
-        _shopItens.Remove(_currentItem);
-        RemoveItemFromList(_currentItem);
+        _shopItens.Remove(currentItem);
+        RemoveItemFromList(currentItem);
     }
 
     private void BuyCustomerItemCallback()
     {
-        ISalable itemToSell = _currentItem as ISalable;
+        ISalable itemToSell = currentItem as ISalable;
 
         if (itemToSell == null)
         {
-            _interactionButton.interactable = false;
-            _textController.SetContextText(CantSellThis);
+            interactionButton.interactable = false;
+            textController.SetContextText(CantSellThis);
             return;
         }
 
-        if (!itemToSell.SellItem(_currentCustomer, _currentItem.GetShopValue(_operationType), this))
+        if (!itemToSell.SellItem(_currentCustomer, currentItem.GetShopValue(_operationType), this))
         {
-            _textController.SetContextText(MoneyLessShop);
+            textController.SetContextText(MoneyLessShop);
             return;
         }
 
 
-        _textController.SetContextText(SuccessSell);
+        textController.SetContextText(SuccessSell);
 
-        UpdateWalletHandler(-_currentValue);
-        _shopItens.Add(_currentItem);
-        RemoveItemFromList(_currentItem);
-    }
-
-    private void CancelPurchaseItemHandler()
-    {
-        PanelAnim(false);
-        OnReturn?.Invoke();
+        UpdateWalletHandler(-currentValue);
+        _shopItens.Add(currentItem);
+        RemoveItemFromList(currentItem);
     }
 
     private void RemoveItemFromList(Item i)
     {
-        foreach (ItemShopLabel label in _createdItems)
+        foreach (ItemLabel label in createdItems)
         {
             if (label.Item.Equals(i))
             {
-                _createdItems.Remove(label);
+                createdItems.Remove(label);
                 OnSelectItemInList -= label.SelectItemInListCallback;
                 label.OnSelectItem -= SelectItemHandler;
 
-                _currentItem = null;
+                currentItem = null;
                 Destroy(label.gameObject);
 
                 ClearSelection();
                 return;
             }
         }
-    }
-
-    private void ShowSelectedItemHandler()
-    {
-        _selectedItemName.text = _currentItem.Name;
-        _selectedItemDescription.text = _currentItem.Description;
-        _selectedItemImage.gameObject.SetActive(true);
-        _selectedItemImage.sprite = _currentItem.ItemSprite;
-        _selectedItemImage.DOFade(1f, 0.5f);
-        _selectedItemType.text = _currentItem.ItemType.ToString();
-        _selectedItemValue.text = $"{_currentValue}";
-        _interactionButton.interactable = true;
-    }
-
-    private void ClearSelection()
-    {
-        _selectedItemName.text = " ";
-        _selectedItemDescription.text = " ";
-        _selectedItemImage.DOFade(0f, 0.5f).OnComplete(() => {_selectedItemImage.gameObject.SetActive(false);});
-        _selectedItemType.text = " ";
-        _selectedItemValue.text = " ";
-        _currentValue = 0f;
-        _currentItem = null;
-        _interactionButton.interactable = false;
-
-    }
-
-    private void ClearList()
-    {
-        foreach (ItemShopLabel label in _createdItems)
-        {
-            OnSelectItemInList -= label.SelectItemInListCallback;
-            label.OnSelectItem -= SelectItemHandler;
-            Destroy(label.gameObject);
-        }
-
-        _createdItems.Clear();
-        ClearSelection();
-    }
-    private void PanelAnim(bool status)
-    {
-        if (status)
-        {
-            gameObject.SetActive(true);
-            gameObject.transform.DOScale(1f, _animTime);
-            return;
-        }
-
-        gameObject.transform.DOScale(0f, _animTime).OnComplete(() =>
-        {
-            gameObject.SetActive(false);
-        });
     }
 }

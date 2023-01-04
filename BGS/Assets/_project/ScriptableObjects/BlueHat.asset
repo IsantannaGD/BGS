@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9970e827a1223284a86ee16486128ec3, type: 3}
-  m_Name: YellowHat
+  m_Name: BlueHat
   m_EditorClassIdentifier: 
   _isEquipped: 0
-  _id: 1
-  _name: Yellow Hat
-  _description: Simple hat with yellow color.
+  _id: 4
+  _name: Blue Hat
+  _description: Simple hat with blue color.
   _defaultValue: 50
   _itemType: 2
-  _sprite: {fileID: 21300000, guid: f7e7bed775fff8347b9e53c67e20875f, type: 3}
-  _icon: {fileID: 21300000, guid: f7e7bed775fff8347b9e53c67e20875f, type: 3}
+  _sprite: {fileID: 21300000, guid: ae2d3e3bacfacde4981510b116293dba, type: 3}
+  _icon: {fileID: 21300000, guid: ae2d3e3bacfacde4981510b116293dba, type: 3}

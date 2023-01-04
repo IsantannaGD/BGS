@@ -15,7 +15,7 @@ MonoBehaviour:
   _id: 2
   _name: Red Hat
   _description: Simple hat with red color.
-  _defaultValue: 75
+  _defaultValue: 50
   _itemType: 2
   _sprite: {fileID: 21300000, guid: 20eb058aea3c3a744bb5d47a1610550a, type: 3}
   _icon: {fileID: 21300000, guid: 20eb058aea3c3a744bb5d47a1610550a, type: 3}
