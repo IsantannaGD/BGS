@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TopDownPlayerInput : MonoBehaviour
 {
@@ -38,9 +39,16 @@ public class TopDownPlayerInput : MonoBehaviour
 
         _inputBinder.Keyboard.LeftMove.performed += (ctx) => _player.Velocity.x -= 1;
         _inputBinder.Keyboard.LeftMove.canceled += (ctx) => _player.Velocity.x += 1;
+
+        _inputBinder.Keyboard.ChangeScene.performed += (ctx) => ChangeScene();
     }
     private void UnSubscriptions()
     {
         _inputBinder.Disable();
+    }
+
+    private void ChangeScene()
+    {
+        SceneManager.LoadScene("StoreScene");
     }
 }

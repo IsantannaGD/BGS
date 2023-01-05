@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerInput : MonoBehaviour
 {
@@ -42,10 +43,17 @@ public class PlayerInput : MonoBehaviour
 
         _inputBinder.Keyboard.Interactive.performed += (ctx) => _player.OnInteractive?.Invoke();
         _inputBinder.Keyboard.Inventory.performed += (ctx) => _player.OpenInventory();
+
+        _inputBinder.Keyboard.ChangeScene.performed += (ctx) => ChangeScene();
     }
 
     private void UnSubscriptions()
     {
         _inputBinder.Disable();
+    }
+
+    private void ChangeScene()
+    {
+        SceneManager.LoadScene("TopDownMovement");
     }
 }

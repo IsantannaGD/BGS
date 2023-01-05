@@ -1,5 +1,5 @@
 {
-    "name": "Input",
+    "name": "InputBinder",
     "maps": [
         {
             "name": "Keyboard",
@@ -54,6 +54,15 @@
                     "name": "Inventory",
                     "type": "Button",
                     "id": "ddb2466a-d532-466c-b5ea-3f1db2c4f027",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ChangeScene",
+                    "type": "Button",
+                    "id": "689608eb-fe78-403d-b919-c3e5bb189c4d",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -190,6 +199,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Inventory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0428be90-b6c8-4340-bc3b-81b8a450dafa",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChangeScene",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -80,6 +80,15 @@ public partial class @InputBinder : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ChangeScene"",
+                    ""type"": ""Button"",
+                    ""id"": ""689608eb-fe78-403d-b919-c3e5bb189c4d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -214,6 +223,17 @@ public partial class @InputBinder : IInputActionCollection2, IDisposable
                     ""action"": ""Inventory"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0428be90-b6c8-4340-bc3b-81b8a450dafa"",
+                    ""path"": ""<Keyboard>/f1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChangeScene"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -228,6 +248,7 @@ public partial class @InputBinder : IInputActionCollection2, IDisposable
         m_Keyboard_UpMove = m_Keyboard.FindAction("UpMove", throwIfNotFound: true);
         m_Keyboard_Interactive = m_Keyboard.FindAction("Interactive", throwIfNotFound: true);
         m_Keyboard_Inventory = m_Keyboard.FindAction("Inventory", throwIfNotFound: true);
+        m_Keyboard_ChangeScene = m_Keyboard.FindAction("ChangeScene", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -293,6 +314,7 @@ public partial class @InputBinder : IInputActionCollection2, IDisposable
     private readonly InputAction m_Keyboard_UpMove;
     private readonly InputAction m_Keyboard_Interactive;
     private readonly InputAction m_Keyboard_Inventory;
+    private readonly InputAction m_Keyboard_ChangeScene;
     public struct KeyboardActions
     {
         private @InputBinder m_Wrapper;
@@ -303,6 +325,7 @@ public partial class @InputBinder : IInputActionCollection2, IDisposable
         public InputAction @UpMove => m_Wrapper.m_Keyboard_UpMove;
         public InputAction @Interactive => m_Wrapper.m_Keyboard_Interactive;
         public InputAction @Inventory => m_Wrapper.m_Keyboard_Inventory;
+        public InputAction @ChangeScene => m_Wrapper.m_Keyboard_ChangeScene;
         public InputActionMap Get() { return m_Wrapper.m_Keyboard; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -330,6 +353,9 @@ public partial class @InputBinder : IInputActionCollection2, IDisposable
                 @Inventory.started -= m_Wrapper.m_KeyboardActionsCallbackInterface.OnInventory;
                 @Inventory.performed -= m_Wrapper.m_KeyboardActionsCallbackInterface.OnInventory;
                 @Inventory.canceled -= m_Wrapper.m_KeyboardActionsCallbackInterface.OnInventory;
+                @ChangeScene.started -= m_Wrapper.m_KeyboardActionsCallbackInterface.OnChangeScene;
+                @ChangeScene.performed -= m_Wrapper.m_KeyboardActionsCallbackInterface.OnChangeScene;
+                @ChangeScene.canceled -= m_Wrapper.m_KeyboardActionsCallbackInterface.OnChangeScene;
             }
             m_Wrapper.m_KeyboardActionsCallbackInterface = instance;
             if (instance != null)
@@ -352,6 +378,9 @@ public partial class @InputBinder : IInputActionCollection2, IDisposable
                 @Inventory.started += instance.OnInventory;
                 @Inventory.performed += instance.OnInventory;
                 @Inventory.canceled += instance.OnInventory;
+                @ChangeScene.started += instance.OnChangeScene;
+                @ChangeScene.performed += instance.OnChangeScene;
+                @ChangeScene.canceled += instance.OnChangeScene;
             }
         }
     }
@@ -364,5 +393,6 @@ public partial class @InputBinder : IInputActionCollection2, IDisposable
         void OnUpMove(InputAction.CallbackContext context);
         void OnInteractive(InputAction.CallbackContext context);
         void OnInventory(InputAction.CallbackContext context);
+        void OnChangeScene(InputAction.CallbackContext context);
     }
 }
