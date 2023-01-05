@@ -28,6 +28,11 @@ public class Shop : MonoBehaviour
 
     [SerializeField] private float shopKeeperWallet = 850f;
 
+    public void Setup(Player p)
+    {
+        _currentCustomer = p;
+    }
+
     private void UpdateWalletHandler(float value)
     {
         shopKeeperWallet += value;

@@ -63,6 +63,16 @@ public class InventoryView : ItemListBuilder
         _inventoryOwner.Inventory.OnUpdateItem -= UpdateItemDisplay;
     }
 
+    protected override void CancelHandler()
+    {
+        OpenInventory();
+    }
+
+    protected override void ExtraListComponents()
+    {
+        _equippedIndication.SetActive(false);
+    }
+
     private void UpdateItemDisplay()
     {
         ShowSelectedItemHandler();
@@ -71,14 +81,16 @@ public class InventoryView : ItemListBuilder
     private void OpenInventory()
     {
         _isOpen = !_isOpen;
+        
+        ClearList();
 
         if (_isOpen)
         {
-            ClearList();
             CreateList(_inventoryOwner.Inventory.InventoryList);
             UpdateWalletDisplay(_inventoryOwner.Inventory.Wallet);
         }
 
         PanelAnim(_isOpen);
+        GameController.Instance.OnPlayerInInteraction?.Invoke(!_isOpen);
     }
 }

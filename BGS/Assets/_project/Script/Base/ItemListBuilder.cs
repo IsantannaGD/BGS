@@ -9,7 +9,6 @@ using UnityEngine.UI;
 public abstract class ItemListBuilder : MonoBehaviour
 {
     public Action<Item> OnSelectItemInList;
-    public Action OnReturn;
 
     [SerializeField] protected GameObject listPanel;
     [SerializeField] protected GameObject spawnPoint;
@@ -62,14 +61,10 @@ public abstract class ItemListBuilder : MonoBehaviour
 
     protected abstract void SelectItemHandler(Item i);
     protected abstract void InteractiveButtonHandler();
+    protected abstract void CancelHandler();
     protected virtual void UpdateWalletDisplay(float value)
     {
         ownerWallet.text = value.ToString("000");
-    }
-    protected virtual void CancelHandler()
-    {
-        PanelAnim(false);
-        OnReturn?.Invoke();
     }
 
     protected virtual void ShowSelectedItemHandler()
@@ -82,6 +77,7 @@ public abstract class ItemListBuilder : MonoBehaviour
         selectedItemType.text = currentItem.ItemType.ToString();
         selectedItemValue.text = $"{currentValue}";
         interactionButton.interactable = true;
+
     }
 
     protected void ClearSelection()
@@ -94,7 +90,7 @@ public abstract class ItemListBuilder : MonoBehaviour
         currentValue = 0f;
         currentItem = null;
         interactionButton.interactable = false;
-
+        ExtraListComponents();
     }
 
     protected void ClearList()
@@ -123,6 +119,9 @@ public abstract class ItemListBuilder : MonoBehaviour
             listPanel.SetActive(false);
         });
     }
+
+    protected virtual void ExtraListComponents()
+    { }
 
     protected virtual void Subscriptions()
     { }

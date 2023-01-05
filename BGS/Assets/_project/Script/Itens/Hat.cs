@@ -10,7 +10,6 @@ public class Hat : Item, ISalable, IPurchasable, IWearable
     public bool InUse => _isEquipped;
 
     private readonly ClothType _clothType = ClothType.Hat;
-    private float h;
 
     private void OnDisable()
     {

@@ -14,8 +14,6 @@ public class Shopkeeper : MonoBehaviour
 
     public Shop Shop => _shop;
 
-    [SerializeField] private Button TestButton;
-
     [SerializeField] private Shop _shop;
     [SerializeField] private InteractiveArea _serviceDesk;
     [SerializeField] private TextController _textController;
@@ -40,8 +38,6 @@ public class Shopkeeper : MonoBehaviour
     {
         _serviceDesk.OnTriggerStatus += CanInteractiveHandler;
         _textController.SetChoices(CreateOptions());
-
-        TestButton.onClick.AddListener(InteractiveHandler);
     }
 
     private void CanInteractiveHandler(bool status, Player player)
@@ -56,6 +52,7 @@ public class Shopkeeper : MonoBehaviour
         }
 
         _currentCustomer = player;
+        _shop.Setup(_currentCustomer);
         _currentCustomer.OnInteractive += InteractiveHandler;
     }
 
@@ -78,6 +75,7 @@ public class Shopkeeper : MonoBehaviour
 
         _textController.SetContextText(Welcome);
         _shopInUse = true;
+        GameController.Instance.OnPlayerInInteraction?.Invoke(!_shopInUse);
 
         yield return new WaitForSeconds(1f);
 
@@ -99,6 +97,8 @@ public class Shopkeeper : MonoBehaviour
         _textController.SetContextText(GoodBye);
         _textController.OnBoxControl?.Invoke(false, 1f);
         _shopInUse = false;
+
+        GameController.Instance.OnPlayerInInteraction?.Invoke(!_shopInUse);
     }
 
     private ChoiceForm[] CreateOptions()

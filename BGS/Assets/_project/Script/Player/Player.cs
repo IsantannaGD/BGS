@@ -11,10 +11,10 @@ public class Player : MonoBehaviour
     public Action OnInventoryOpen;
     
     public Inventory Inventory => _inventory;
+    public PlayerPhysics PlayerPhysics => _playerPhysics;
 
     [SerializeField] private Inventory _inventory;
-
-    [SerializeField] private Button _openInventoryDebugger;
+    [SerializeField] private PlayerPhysics _playerPhysics;
 
     [SerializeField] private SpriteRenderer _hat;
     [SerializeField] private SpriteRenderer _shirt;
@@ -24,6 +24,20 @@ public class Player : MonoBehaviour
     [SerializeField] private Sprite _defaultShirt;
     [SerializeField] private Sprite _defaultTrousers;
 
+    private bool _waitTimeActive;
+    private readonly float _waitTime = 0.8f;
+
+    public void OpenInventory()
+    {
+        if (_waitTimeActive)
+        {
+            return;
+        }
+
+        OnInventoryOpen?.Invoke();
+        _waitTimeActive = true;
+        StartCoroutine(WaitTimeRelease());
+    }
     private void Start()
     {
         Initializations();
@@ -32,10 +46,7 @@ public class Player : MonoBehaviour
     private void Initializations()
     {
         _inventory.UpdatePlayerOutfit += UpdateEquipSprite;
-
-        _openInventoryDebugger.onClick.AddListener(() => OnInventoryOpen?.Invoke());
     }
-
 
     private void UpdateEquipSprite(ClothType c, Item newItem)
     {
@@ -71,5 +82,12 @@ public class Player : MonoBehaviour
                 _trousers.sprite = newItem.ItemSprite;
                 break;
         }
+    }
+
+    private IEnumerator WaitTimeRelease()
+    {
+        yield return new WaitForSeconds(_waitTime);
+
+        _waitTimeActive = false;
     }
 }
