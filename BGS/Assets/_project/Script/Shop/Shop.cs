@@ -11,156 +11,99 @@ public enum OperationType
     Buy = 0,
     Sell = 1
 }
-public class Shop : ItemListBuilder
+public class Shop : MonoBehaviour
 {
-    private const string BuyMessage = "What do you want purchase, today?";
-    private const string SellMessage = "Well, show me what do you have...";
-
-    private const string MoneylessCustomer = "You don't have money to this...";
-    private const string SuccessPurchase = "Great, thank you for your preference!";
-
-    private const string MoneyLessShop = "The ShopKeeper don't have money to buy your item...";
-    private const string CantSellThis = "It's not a salable Item!";
-    private const string CantSellEquippedItem = "You can't sell equipped items!, unequip him to sell.";
-    private const string SuccessSell = "Wonderful, bring other items in future!";
+    public Action OnUpdateWallet;
+    public Action<string> OnUpdateMessage;
+    public Action<Item> OnRemoveItemFromList;
 
     public float ShopKeeperWallet => shopKeeperWallet;
+    public List<Item> ShopItems => _shopItems;
 
-    [SerializeField] private OperationType _operationType;
-    [SerializeField] private List<Item> _shopItens;
+
+    [SerializeField] private List<Item> _shopItems;
 
     [SerializeField] private Player _currentCustomer;
-    [SerializeField] private TextMeshProUGUI _customerWallet;
+    
 
     [SerializeField] private float shopKeeperWallet = 850f;
-    
-    public void Setup(OperationType o, Player c, TextController t)
-    {
-        _currentCustomer = c;
-        _operationType = o;
-        textController = t;
 
-        ClearList();
-
-        switch (_operationType)
-        {
-            case OperationType.Buy:
-                CreateList(_shopItens);
-                textController.SetContextText(BuyMessage);
-                interactionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Purchase";
-                break;
-            case OperationType.Sell:
-                CreateList(_currentCustomer.Inventory.InventoryList);
-                textController.SetContextText(SellMessage);
-                interactionButton.GetComponentInChildren<TextMeshProUGUI>().text = "Sell";
-                break;
-        }
-
-        UpdateWalletDisplay(shopKeeperWallet);
-        UpdateCustomerWalletDisplay(_currentCustomer.Inventory.Wallet);
-        PanelAnim(true);
-    }
-
-    public void UpdateWalletHandler(float value)
+    private void UpdateWalletHandler(float value)
     {
         shopKeeperWallet += value;
-        UpdateWalletDisplay(shopKeeperWallet);
-        UpdateCustomerWalletDisplay(_currentCustomer.Inventory.Wallet);
+        OnUpdateWallet?.Invoke();
     }
 
-    protected override void SelectItemHandler(Item i)
+    public void SellShopItemCallback(Item i)
     {
-        OnSelectItemInList?.Invoke(i);
-        currentItem = i;
-        currentValue = currentItem.GetShopValue(_operationType);
-        ShowSelectedItemHandler();
-    }
-
-    protected override void InteractiveButtonHandler()
-    {
-        switch (_operationType)
+        if (i is not IPurchasable itemToPurchase)
         {
-            case OperationType.Buy:
-                SellShopItemCallback();
-                break;
-            case OperationType.Sell:
-                BuyCustomerItemCallback();
-                break;
-        }
-    }
-
-    private void UpdateCustomerWalletDisplay(float value)
-    {
-        _customerWallet.text = value.ToString("000");
-    }
-
-    private void SellShopItemCallback()
-    {
-        IPurchasable itemToPurchase = currentItem as IPurchasable;
-
-        if (itemToPurchase == null)
-        {return; }
-
-        if (!itemToPurchase.BuyItem(_currentCustomer, currentValue))
-        {
-            textController.SetContextText(MoneylessCustomer);
             return;
         }
+
+        if (!BuyItem(_currentCustomer, i))
+        {
+            OnUpdateMessage?.Invoke("MoneylessCustomer");
+            return;
+        }
+
+        float value = i.GetShopValue(OperationType.Buy);
         
-        UpdateWalletHandler(currentValue);
-        textController.SetContextText(SuccessPurchase);
+        UpdateWalletHandler(value);
+        OnUpdateMessage?.Invoke("SuccessPurchase");
 
-        _shopItens.Remove(currentItem);
-        RemoveItemFromList(currentItem);
+        _shopItems.Remove(i);
+        OnRemoveItemFromList?.Invoke(i);
     }
 
-    private void BuyCustomerItemCallback()
+    public void BuyCustomerItemCallback(Item i)
     {
-        if (currentItem.EquippedChecker())
+        if (i is not ISalable itemToSell)
         {
-          textController.SetContextText(CantSellEquippedItem);
-          return;
-        }
-
-        ISalable itemToSell = currentItem as ISalable;
-
-        if (itemToSell == null)
-        {
-            interactionButton.interactable = false;
-            textController.SetContextText(CantSellThis);
+            OnUpdateMessage?.Invoke("CantSellThis");
             return;
         }
 
-        if (!itemToSell.SellItem(_currentCustomer, currentItem.GetShopValue(_operationType), this))
+        if (itemToSell.InUse)
         {
-            textController.SetContextText(MoneyLessShop);
+            OnUpdateMessage?.Invoke("CantSellEquippedItem");
             return;
         }
 
-
-        textController.SetContextText(SuccessSell);
-
-        UpdateWalletHandler(-currentValue);
-        _shopItens.Add(currentItem);
-        RemoveItemFromList(currentItem);
-    }
-
-    private void RemoveItemFromList(Item i)
-    {
-        foreach (ItemLabel label in createdItems)
+        if (!SellItem(_currentCustomer, i))
         {
-            if (label.Item.Equals(i))
-            {
-                createdItems.Remove(label);
-                OnSelectItemInList -= label.SelectItemInListCallback;
-                label.OnSelectItem -= SelectItemHandler;
-
-                currentItem = null;
-                Destroy(label.gameObject);
-
-                ClearSelection();
-                return;
-            }
+            OnUpdateMessage?.Invoke("MoneyLessShop");
+            return;
         }
+
+        OnUpdateMessage?.Invoke("SuccessSell");
+
+        float value = -i.GetShopValue(OperationType.Sell);
+
+        UpdateWalletHandler(value);
+        _shopItems.Add(i);
+        OnRemoveItemFromList?.Invoke(i);
     }
+
+    private bool SellItem(Player p, Item i)
+    {
+        float value = i.GetShopValue(OperationType.Buy);
+        if (ShopKeeperWallet < value)
+        { return false; }
+
+        p.Inventory.PlayerSellItemHandler(i, value);
+        return true;
+    }
+
+    private bool BuyItem(Player p, Item i)
+    {
+        float value = i.GetShopValue(OperationType.Sell);
+        if (p.Inventory.Wallet < value)
+        { return false; }
+        
+        p.Inventory.PlayerBuyItemHandler(i, value);
+        return true;
+    }
+
+    
 }

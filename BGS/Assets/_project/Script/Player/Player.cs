@@ -8,23 +8,13 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
     public Action OnInteractive;
+    public Action OnInventoryOpen;
+    
+    public Inventory Inventory => _inventory;
 
-    public Action<Hat, bool> OnEquipHat;
-    public Action<Shirt, bool> OnEquipShirt;
-    public Action<Trousers, bool> OnEquipTrousers;
-
-    public InventoryManager Inventory => _inventory;
-    public Hat EquippedHat => _equippedHat;
-    public Shirt EquippedShirt => _equippedShirt;
-    public Trousers EquippedTrousers => _equippedTrousers;
-
-    [SerializeField] private InventoryManager _inventory;
+    [SerializeField] private Inventory _inventory;
 
     [SerializeField] private Button _openInventoryDebugger;
-
-    [SerializeField][CanBeNull] private Hat _equippedHat = null;
-    [SerializeField][CanBeNull] private Shirt _equippedShirt = null;
-    [SerializeField][CanBeNull] private Trousers _equippedTrousers = null;
 
     [SerializeField] private SpriteRenderer _hat;
     [SerializeField] private SpriteRenderer _shirt;
@@ -41,102 +31,45 @@ public class Player : MonoBehaviour
 
     private void Initializations()
     {
-        OnEquipHat += EquipHatHandler;
-        OnEquipShirt += EquipShirtHandler;
-        OnEquipTrousers += EquipTrousersHandler;
+        _inventory.UpdatePlayerOutfit += UpdateEquipSprite;
 
-        _openInventoryDebugger.onClick.AddListener(_inventory.OpenInventory);
-
-        _inventory.Setup(this);
+        _openInventoryDebugger.onClick.AddListener(() => OnInventoryOpen?.Invoke());
     }
 
-    public int CheckEquippedHatID()
+
+    private void UpdateEquipSprite(ClothType c, Item newItem)
     {
-        int i = _equippedHat != null ? _equippedHat.ID : -1;
-
-        return i;
-    }
-
-    public int CheckEquippedShirtID()
-    {
-        int i = _equippedShirt != null ? _equippedShirt.ID : -1;
-
-        return i;
-    }
-
-    public int CheckEquippedTrousersID()
-    {
-        int i = _equippedTrousers != null ? _equippedTrousers.ID : -1;
-
-        return i;
-    }
-
-    private void EquipHatHandler(Hat h, bool status)
-    {
-        h.EquipItemHandler(status);
-        _inventory.UpdateItemDisplay();
-
-        if (!status)
+        switch (c)
         {
-            _equippedHat = null;
-            UpdateEquipSprite(_hat, _defaultHat);
-            return;
+            case ClothType.Hat:
+                if (newItem == null)
+                {
+                    _hat.sprite = _defaultHat;
+                    return;
+                }
+
+                _hat.sprite = newItem.ItemSprite;
+                break;
+
+            case ClothType.Shirt:
+                if (newItem == null)
+                {
+                    _shirt.sprite = _defaultShirt;
+                    return;
+                }
+
+                _shirt.sprite = newItem.ItemSprite;
+                break;
+
+            case ClothType.Trousers:
+                if (newItem == null)
+                {
+                    _trousers.sprite = _defaultTrousers;
+                    return;
+                }
+
+                _trousers.sprite = newItem.ItemSprite;
+                break;
         }
-
-        if (_equippedHat != null)
-        {
-            _equippedHat.EquipItemHandler(false);
-        }
-        
-        _equippedHat = h;
-        UpdateEquipSprite(_hat, _equippedHat.ItemSprite);
-    }
-
-    private void EquipShirtHandler(Shirt s, bool status)
-    {
-
-        s.EquipItemHandler(status);
-        _inventory.UpdateItemDisplay();
-
-        if (!status)
-        {
-            _equippedShirt = null;
-            UpdateEquipSprite(_shirt, _defaultShirt);
-            return;
-        }
-
-        if (_equippedShirt != null)
-        {
-            _equippedShirt.EquipItemHandler(false);
-        }
-
-        _equippedShirt = s;
-        UpdateEquipSprite(_shirt, _equippedShirt.ItemSprite);
-    }
-
-    private void EquipTrousersHandler(Trousers t, bool status)
-    {
-        t.EquipItemHandler(status);
-        _inventory.UpdateItemDisplay();
-
-        if (!status)
-        {
-            _equippedTrousers = null;
-            UpdateEquipSprite(_trousers, _defaultTrousers);
-            return;
-        }
-
-        if (_equippedTrousers != null)
-        {
-            _equippedTrousers.EquipItemHandler(false);
-        }
-
-        _equippedTrousers = t;
-        UpdateEquipSprite(_trousers, _equippedTrousers.ItemSprite);
-    }
-
-    private void UpdateEquipSprite(SpriteRenderer i, Sprite newItem)
-    {
-        i.sprite = newItem;
     }
 }

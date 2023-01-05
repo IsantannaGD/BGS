@@ -7,18 +7,24 @@ using UnityEngine.UI;
 
 public class Shopkeeper : MonoBehaviour
 {
+    public Action<OperationType, Player, TextController> OnSetupShopView;
+
     private const string Welcome = "Welcome to Clothes Shop, how can i help you ?";
     private const string GoodBye = "Thank you and until next time!";
 
+    public Shop Shop => _shop;
+
     [SerializeField] private Button TestButton;
 
+    [SerializeField] private Shop _shop;
     [SerializeField] private InteractiveArea _serviceDesk;
     [SerializeField] private TextController _textController;
 
     [SerializeField] private bool _canInteractive = false;
+    [SerializeField] private bool _shopInUse = false;
 
     [SerializeField][CanBeNull] private Player _currentCustomer;
-    [SerializeField] private Shop _shop;
+    
 
     public void InitialDialogueCallback()
     {
@@ -34,8 +40,6 @@ public class Shopkeeper : MonoBehaviour
     {
         _serviceDesk.OnTriggerStatus += CanInteractiveHandler;
         _textController.SetChoices(CreateOptions());
-
-        _shop.OnReturn += InitialDialogueCallback;
 
         TestButton.onClick.AddListener(InteractiveHandler);
     }
@@ -57,7 +61,7 @@ public class Shopkeeper : MonoBehaviour
 
     private void InteractiveHandler()
     {
-        if (!_canInteractive)
+        if (!_canInteractive || _shopInUse)
         {
             return;
         }
@@ -67,12 +71,13 @@ public class Shopkeeper : MonoBehaviour
 
     private IEnumerator EnterToTheShop()
     {
-        if (!_shop.gameObject.activeInHierarchy)
+        if (!_shopInUse)
         {
             _textController.OnBoxControl?.Invoke(true, 0);
         }
 
         _textController.SetContextText(Welcome);
+        _shopInUse = true;
 
         yield return new WaitForSeconds(1f);
 
@@ -81,18 +86,19 @@ public class Shopkeeper : MonoBehaviour
 
     private void SellOption()
     {
-        _shop.Setup(OperationType.Sell, _currentCustomer, _textController);
+        OnSetupShopView?.Invoke(OperationType.Sell, _currentCustomer, _textController);
     }
 
     private void BuyOption()
     {
-        _shop.Setup(OperationType.Buy, _currentCustomer, _textController);
+        OnSetupShopView?.Invoke(OperationType.Buy, _currentCustomer, _textController);
     }
 
     private void LeaveOption()  
     {
         _textController.SetContextText(GoodBye);
         _textController.OnBoxControl?.Invoke(false, 1f);
+        _shopInUse = false;
     }
 
     private ChoiceForm[] CreateOptions()

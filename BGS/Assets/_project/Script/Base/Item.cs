@@ -6,7 +6,7 @@ using UnityEngine;
 public enum ItemType
 {
     Consumable = 0,
-    Weapon = 1,
+    Furniture = 1,
     Clothe = 2
 }
 public abstract class Item : ScriptableObject, IComparable, IEquatable<Item>
@@ -62,18 +62,7 @@ public abstract class Item : ScriptableObject, IComparable, IEquatable<Item>
 
     public bool EquippedChecker()
     {
-        switch (_itemType)
-        {
-            case ItemType.Consumable:
-                return false;
-                break;
-            case ItemType.Weapon:
-            case ItemType.Clothe:
-                return _isEquipped;
-                break;
-        }
-
-        return false;
+        return _isEquipped;
     }
 
     public bool Equals(Item other)

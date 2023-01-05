@@ -5,7 +5,10 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Trousers", menuName = "ScriptableObjects/Item/Trousers", order = 1)]
 public class Trousers : Item, ISalable, IPurchasable, IWearable
 {
-    public readonly ClothType ClothType = ClothType.Trousers;
+    public ClothType ClothType => _clothType;
+    public bool InUse => _isEquipped;
+
+    private readonly ClothType _clothType = ClothType.Trousers;
 
     private void OnDisable()
     {

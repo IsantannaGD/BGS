@@ -6,7 +6,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Hat", menuName = "ScriptableObjects/Item/Hat", order = 1)]
 public class Hat : Item, ISalable, IPurchasable, IWearable
 {
-    public readonly ClothType ClothType = ClothType.Hat;
+    public ClothType ClothType => _clothType;
+    public bool InUse => _isEquipped;
+
+    private readonly ClothType _clothType = ClothType.Hat;
+    private float h;
 
     private void OnDisable()
     {
@@ -17,4 +21,7 @@ public class Hat : Item, ISalable, IPurchasable, IWearable
     {
         _isEquipped = isEquipped;
     }
+
+    
+    
 }
